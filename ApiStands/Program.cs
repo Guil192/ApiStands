@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using ApiStands.Data;
+using Microsoft.Extensions.Options;
+
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<DBStandsContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DBStandsContext") ?? throw new InvalidOperationException("Connection string 'DBStandsContext' not found.")));
@@ -12,7 +14,21 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddCors(Options=>
+{
+    Options.AddPolicy("AllowCrossOrigins" , policy =>
+    {
+        policy.AllowAnyOrigin()
+        .AllowAnyMethod()
+        .AllowAnyHeader();
+    });
+
+});
+
+
 var app = builder.Build();
+
+app.UseCors("AllowCrossOrigins");
 
 using (var scope = app.Services.CreateScope())
 {
